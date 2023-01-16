@@ -1,3 +1,5 @@
+from spec2nii.nifti_orientation import calc_affine
+
 def _philips_orientation(params):
     '''Calculate the orientation affine from the spar parameters.'''
 

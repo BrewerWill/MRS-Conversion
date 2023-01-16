@@ -4,7 +4,45 @@ import struct
 import os
 from vax_to_ieee_single_float import _vax_to_ieee_single_float
 from philips_orientation import _philips_orientation
-from spec2nii.nifti_orientation import NIFTIOrient, calc_affine
+from spec2nii.nifti_orientation import NIFTIOrient
+
+para_list = [
+    "PatientName", 
+    "PatientID", "PatientSex", 
+    "PatientBirthDate", "StudyDate", 
+    "StudyTime", "StudyDescription", 
+    "PatientAge", "PatientWeight", 
+    "SeriesDate", "SeriesTime", 
+    "SeriesDescription", "ProtocolName", 
+    "PatientPosition", "SeriesNumber", 
+    "InstitutionName", "StationName", 
+    "ModelName", "DeviceSerialNumber", 
+    "SoftwareVersion[0]", "InstanceDate", 
+    "InstanceTime", "InstanceNumber", 
+    "InstanceComments", "AcquisitionNumber", 
+    "SequenceName", "SequenceDescription", 
+    "TR", "TE", "TM", "TI", "DwellTime", 
+    "EchoNumber", "NumberOfAverages", 
+    "MRFrequency", "Nucleus", "MagneticFieldStrength", 
+    "NumOfPhaseEncodingSteps", "FlipAngle", "VectorSize", 
+    "CSIMatrixSize[0]", "CSIMatrixSize[1]", 
+    "CSIMatrixSize[2]", "CSIMatrixSizeOfScan[0]", 
+    "CSIMatrixSizeOfScan[1]", "CSIMatrixSizeOfScan[2]", 
+    "CSIGridShift[0]", "CSIGridShift[1]", 
+    "CSIGridShift[2]", "HammingFilter", 
+    "FrequencyCorrection", "TransmitCoil", 
+    "TransmitRefAmplitude[1H]", "SliceThickness", 
+    "PositionVector[0]", "PositionVector[1]", 
+    "PositionVector[2]", "RowVector[0]", "RowVector[1]", 
+    "RowVector[2]", "ColumnVector[0]", "ColumnVector[1]", 
+    "ColumnVector[2]", "VOIPositionSag", "VOIPositionCor", 
+    "VOIPositionTra", "VOIThickness", "VOIPhaseFOV", 
+    "VOIReadoutFOV", "VOINormalSag", "VOINormalCor", 
+    "VOINormalTra", "VOIRotationInPlane", "FoVHeight", 
+    "FoVWidth", "FoV3D", "PercentOfRectFoV", 
+    "NumberOfRows", "NumberOfColumns", "NumberOf3DParts", 
+    "PixelSpacingRow", "PixelSpacingCol", "PixelSpacing3D"
+    ]
 
 spar_types = {
   "floats": ["ap_size", "lr_size", "cc_size", "ap_off_center", "lr_off_center",
@@ -28,18 +66,15 @@ spar_types = {
                 "de_coupling", "equipment_sw_verions", "examination_name"],
 }
 
+rda_types = {
+
+}
+
 sdat_filename = "./VGH0054_777540_Initial_MRI_WIP_MOTOR_PRESS_135_7_1_raw_act.SDAT"
-spar_filename = None
+spar_filename = "./VGH0054_777540_Initial_MRI_WIP_MOTOR_PRESS_135_7_1_raw_act.SPAR"
 
 path, ext = os.path.splitext(sdat_filename)
 output_filename = path + ".rda"
-
-if spar_filename is None:
-  # match the capitalisation of the sdat extension
-  if ext == ".SDAT":
-    spar_filename = path + ".SPAR"
-  elif ext == ".sdat":
-    spar_filename = path + ".spar"
 
 # Read SPAR parameters
 with open(spar_filename, 'r') as fin:
@@ -177,44 +212,6 @@ header_dict["PositionVector[2]"] = -Q44[2,3]
 out = open(output_filename, "wb")
 
 # Write header
-para_list = [
-    "PatientName", 
-    "PatientID", "PatientSex", 
-    "PatientBirthDate", "StudyDate", 
-    "StudyTime", "StudyDescription", 
-    "PatientAge", "PatientWeight", 
-    "SeriesDate", "SeriesTime", 
-    "SeriesDescription", "ProtocolName", 
-    "PatientPosition", "SeriesNumber", 
-    "InstitutionName", "StationName", 
-    "ModelName", "DeviceSerialNumber", 
-    "SoftwareVersion[0]", "InstanceDate", 
-    "InstanceTime", "InstanceNumber", 
-    "InstanceComments", "AcquisitionNumber", 
-    "SequenceName", "SequenceDescription", 
-    "TR", "TE", "TM", "TI", "DwellTime", 
-    "EchoNumber", "NumberOfAverages", 
-    "MRFrequency", "Nucleus", "MagneticFieldStrength", 
-    "NumOfPhaseEncodingSteps", "FlipAngle", "VectorSize", 
-    "CSIMatrixSize[0]", "CSIMatrixSize[1]", 
-    "CSIMatrixSize[2]", "CSIMatrixSizeOfScan[0]", 
-    "CSIMatrixSizeOfScan[1]", "CSIMatrixSizeOfScan[2]", 
-    "CSIGridShift[0]", "CSIGridShift[1]", 
-    "CSIGridShift[2]", "HammingFilter", 
-    "FrequencyCorrection", "TransmitCoil", 
-    "TransmitRefAmplitude[1H]", "SliceThickness", 
-    "PositionVector[0]", "PositionVector[1]", 
-    "PositionVector[2]", "RowVector[0]", "RowVector[1]", 
-    "RowVector[2]", "ColumnVector[0]", "ColumnVector[1]", 
-    "ColumnVector[2]", "VOIPositionSag", "VOIPositionCor", 
-    "VOIPositionTra", "VOIThickness", "VOIPhaseFOV", 
-    "VOIReadoutFOV", "VOINormalSag", "VOINormalCor", 
-    "VOINormalTra", "VOIRotationInPlane", "FoVHeight", 
-    "FoVWidth", "FoV3D", "PercentOfRectFoV", 
-    "NumberOfRows", "NumberOfColumns", "NumberOf3DParts", 
-    "PixelSpacingRow", "PixelSpacingCol", "PixelSpacing3D"
-    ]
-
 out.write(b">>> Begin of header <<<\r\n")
 for para in para_list:
     out.write(bytes(para + ":", 'windows-1252'))
